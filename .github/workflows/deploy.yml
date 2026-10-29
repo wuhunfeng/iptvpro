@@ -19,12 +19,17 @@ jobs:
         run: npm install
 
       - name: Archive Project
-        # 将压缩包生成在工作目录之外，避免 tar 在读取当前目录时因为写入压缩包而报错
-        run: tar -czf ../iptv-app.tar.gz --exclude=.git --exclude=.github --exclude=../iptv-app.tar.gz .
+        run: |
+          # 1. 创建临时目录
+          mkdir temp_build
+          # 2. 将所有需要的文件复制到临时目录，排除 .git, .github 和 temp_build 本身
+          find . -maxdepth 1 -not -name '.' -not -name '.git' -not -name '.github' -not -name 'temp_build' -exec cp -r {} temp_build/ \;
+          # 3. 在临时目录中创建压缩包，输出到当前根目录
+          tar -czf iptv-app.tar.gz -C temp_build .
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: iptv-package
-          # 指向上一级目录中生成的压缩包
-          path: ../iptv-app.tar.gz
+          # 使用相对于工作空间根目录的路径，不再使用 ../
+          path: iptv-app.tar.gz
