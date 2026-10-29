@@ -19,11 +19,12 @@ jobs:
         run: npm install
 
       - name: Archive Project
-        # 将整个目录打包，包含 node_modules
-        run: tar -czf iptv-app.tar.gz --exclude=.git --exclude=.github .
+        # 将压缩包生成在工作目录之外，避免 tar 在读取当前目录时因为写入压缩包而报错
+        run: tar -czf ../iptv-app.tar.gz --exclude=.git --exclude=.github --exclude=../iptv-app.tar.gz .
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: iptv-package
-          path: iptv-app.tar.gz
+          # 指向上一级目录中生成的压缩包
+          path: ../iptv-app.tar.gz
